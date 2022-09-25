@@ -19,16 +19,26 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 Constraint::Length(3),
                 Constraint::Length(3),
                 Constraint::Min(5),
+                Constraint::Length(1),
             ]
             .as_ref(),
         )
         .split(f.size());
-    let input = Paragraph::new(app.input.as_ref())
-        .block(Block::default().borders(Borders::ALL).title("Entrada"));
-    let mut result_block = Block::default().borders(Borders::ALL).title("Resultado");
-    let mut tree_block = Block::default().borders(Borders::ALL).title("Árbol");
+    let input = Paragraph::new(app.input.as_ref()).block(
+        Block::default()
+            .borders(Borders::ALL)
+            .border_style(Style::default().fg(Color::LightCyan))
+            .title("Entrada"),
+    );
 
     f.render_widget(input, main_layout[0]);
+
+    let instructions =
+        Paragraph::new("Presione ESC para salir").style(Style::default().fg(Color::LightCyan));
+    f.render_widget(instructions, main_layout[3]);
+
+    let mut result_block = Block::default().borders(Borders::ALL).title("Resultado");
+    let tree_block = Block::default().borders(Borders::ALL).title("Árbol");
 
     if app.input.len() > 0 {
         let result = app.run_analyzer();
@@ -52,8 +62,7 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                     .alignment(Alignment::Center);
                 let prefix_result =
                     Paragraph::new(format!("Prefijo: {}", res.prefix)).alignment(Alignment::Center);
-                result_block = result_block.border_style(Style::default().fg(Color::Green));
-                tree_block = tree_block.border_style(Style::default().fg(Color::LightCyan));
+                //result_block = result_block.border_style(Style::default().fg(Color::Green));
                 let tree_paragraph = get_tree_paragraph(&res.tree).block(tree_block);
                 f.render_widget(result_block, main_layout[1]);
                 f.render_widget(num_result, result_layout[0]);
@@ -77,7 +86,7 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
 
 fn get_tree_spans<'a>(tree: &'a TreeItem, prepend: &str) -> Vec<Spans<'a>> {
     let mut span_str: String = format!("{}├ {}", prepend, tree.root);
-    let mut next_prepend = prepend.to_owned() +"│  ";
+    let mut next_prepend = prepend.to_owned() + "│  ";
     if prepend.len() == 0 {
         span_str = format!("{}", tree.root);
         next_prepend = prepend.to_owned() + " ";

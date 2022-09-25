@@ -65,15 +65,16 @@ impl Analyzer {
     }
 
     pub fn analyze(&mut self) -> AnalyzerResult {
-        return self.expr();
+        let res = self.expr();
+        if self.current != '\0' {
+            return Err(AnalyzerError::new(self.current, String::from('\0')));
+        }
+        res
     }
 
     pub fn expr(&mut self) -> AnalyzerResult {
         let term = self.term()?;
         let mut res = self.rest_expr(&term)?;
-        if self.current != '\0' {
-            return Err(AnalyzerError::new(self.current, String::from('\0')));
-        }
         res.tree = TreeItem {
             root: "expr".to_string(),
             items: vec![term.tree, res.tree],
