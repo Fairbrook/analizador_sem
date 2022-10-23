@@ -49,25 +49,20 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                     .margin(1)
                     .constraints(
                         [
-                            Constraint::Percentage(33),
-                            Constraint::Percentage(33),
-                            Constraint::Percentage(33),
+                            Constraint::Percentage(50),
+                            Constraint::Percentage(50),
                         ]
                         .as_ref(),
                     )
                     .split(main_layout[1]);
-                let num_result = Paragraph::new(format!("Resultado: {}", res.result))
-                    .alignment(Alignment::Center);
                 let posfix_result = Paragraph::new(format!("Posfijo: {}", res.postfix))
                     .alignment(Alignment::Center);
                 let prefix_result =
                     Paragraph::new(format!("Prefijo: {}", res.prefix)).alignment(Alignment::Center);
-                //result_block = result_block.border_style(Style::default().fg(Color::Green));
                 let tree_paragraph = get_tree_paragraph(&res.tree).block(tree_block);
                 f.render_widget(result_block, main_layout[1]);
-                f.render_widget(num_result, result_layout[0]);
-                f.render_widget(posfix_result, result_layout[1]);
-                f.render_widget(prefix_result, result_layout[2]);
+                f.render_widget(posfix_result, result_layout[0]);
+                f.render_widget(prefix_result, result_layout[1]);
                 f.render_widget(tree_paragraph, main_layout[2]);
             }
             Err(err) => {

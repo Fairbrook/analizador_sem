@@ -5,9 +5,9 @@ pub struct TreeItem {
 }
 
 impl TreeItem {
-    pub fn new(root: String) -> Self {
+    pub fn new(root: &str) -> Self {
         TreeItem {
-            root,
+            root: String::from(root),
             items: Vec::new(),
         }
     }
