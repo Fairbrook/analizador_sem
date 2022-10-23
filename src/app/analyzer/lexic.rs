@@ -62,6 +62,7 @@ impl LexicAnalyzer {
             if *expected != token.token_type {
                 return Err(AnalyzerError::new(
                     &(token.lexeme),
+                    token.position,
                     &type_to_string(expected),
                 ));
             }
@@ -70,6 +71,7 @@ impl LexicAnalyzer {
         }
         Err(AnalyzerError::new(
             &String::from(self.current),
+            self.pos,
             &type_to_string(expected),
         ))
     }
@@ -132,6 +134,7 @@ impl LexicAnalyzer {
 
     fn next_char(&mut self) {
         if self.input.len() > 0 {
+            self.pos += 1;
             self.current = self.input.remove(0);
             return ();
         }

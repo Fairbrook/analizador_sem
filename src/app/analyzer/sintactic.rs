@@ -72,7 +72,7 @@ impl Analyzer {
                 }
             };
         }
-        Err(AnalyzerError::new(&String::from(self.lexic.current), ""))
+        Ok(analyzed.clone())
     }
 
     pub fn term(&mut self) -> AnalyzerResult {
@@ -118,7 +118,7 @@ impl Analyzer {
                 }
             };
         }
-        Err(AnalyzerError::new(&String::from(self.lexic.current), ""))
+        Ok(analyzed.clone())
     }
 
     pub fn factor(&mut self) -> AnalyzerResult {
@@ -151,10 +151,15 @@ impl Analyzer {
                 }
                 _ => Err(AnalyzerError::new(
                     &token.lexeme,
+                    token.position + 1,
                     "(, número o identificador",
                 )),
             };
         }
-        Err(AnalyzerError::new(&String::from(self.lexic.current), ""))
+        Err(AnalyzerError::new(
+            &String::from(self.lexic.current),
+            self.lexic.pos,
+            "",
+        ))
     }
 }
