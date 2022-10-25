@@ -1,7 +1,4 @@
-use super::{
-    error::AnalyzerError,
-    lexic::{type_to_string, LexicAnalyzer, TokenType},
-};
+use super::{error::AnalyzerError, lexic::LexicAnalyzer, token::{TokenType, type_to_string}};
 use crate::app::tree::TreeItem;
 
 #[derive(Debug, Clone, Default)]
