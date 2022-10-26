@@ -1,4 +1,9 @@
-#[derive(Debug, Clone, Default, PartialEq)]
+use std::{
+    collections::hash_map::DefaultHasher,
+    hash::{Hash, Hasher},
+};
+
+#[derive(Debug, Clone, Default, PartialEq, Hash)]
 pub enum TokenType {
     Number,
     Id,
@@ -9,6 +14,7 @@ pub enum TokenType {
     OpenParenthesis,
     ClosingParenthesis,
     #[default]
+    Unknown,
     EOF,
 }
 
@@ -17,6 +23,20 @@ pub struct Token {
     pub position: u32,
     pub lexeme: String,
     pub token_type: TokenType,
+}
+
+impl Hash for Token {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.lexeme.hash(state);
+    }
+}
+
+impl Token {
+    pub fn get_default_hash(&self) -> u64 {
+        let mut hasher = DefaultHasher::new();
+        self.hash(&mut hasher);
+        hasher.finish()
+    }
 }
 
 pub fn type_to_string(t: &TokenType) -> String {
@@ -28,7 +48,8 @@ pub fn type_to_string(t: &TokenType) -> String {
         TokenType::Plus => String::from("+"),
         TokenType::Minus => String::from("-"),
         TokenType::Number => String::from("número"),
-        TokenType::Id => String::from("identificador"),
+        TokenType::Id => String::from("id"),
         TokenType::EOF => String::from("Final de archivo"),
+        TokenType::Unknown => String::from("desconocido"),
     }
 }

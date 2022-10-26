@@ -1,10 +1,17 @@
-use super::{error::AnalyzerError, lexic::LexicAnalyzer, token::{TokenType, type_to_string}};
+use super::{
+    error::AnalyzerError,
+    graph::{Graph, Node},
+    lexic::LexicAnalyzer,
+    symbols::SymbolsTable,
+    token::{type_to_string, TokenType},
+};
 use crate::app::tree::TreeItem;
 
 #[derive(Debug, Clone, Default)]
 pub struct Analyzed {
     pub postfix: String,
     pub prefix: String,
+    pub node_hash: u64,
     pub tree: TreeItem,
 }
 
@@ -13,12 +20,16 @@ pub type AnalyzerResult = Result<Analyzed, AnalyzerError>;
 #[derive(Debug, Clone)]
 pub struct Analyzer {
     lexic: LexicAnalyzer,
+    pub symbols_table: SymbolsTable,
+    pub graph: Graph,
 }
 
 impl Analyzer {
     pub fn new(input: &String) -> Self {
         Analyzer {
             lexic: LexicAnalyzer::new(input),
+            symbols_table: SymbolsTable::new(),
+            graph: Graph::new(),
         }
     }
 
@@ -46,9 +57,16 @@ impl Analyzer {
                 TokenType::Plus | TokenType::Minus => {
                     self.lexic.consume_token();
                     let term = self.term()?;
+                    let node_hash = self.graph.add(Node {
+                        op: token.token_type.clone(),
+                        left: analyzed.node_hash,
+                        right: term.node_hash,
+                        is_leaf: false,
+                    });
                     let mut partial = Analyzed {
                         postfix: format!("{} {} {}", analyzed.postfix, term.postfix, token.lexeme),
                         prefix: format!("{} {} {}", token.lexeme, analyzed.prefix, term.prefix),
+                        node_hash,
                         tree: TreeItem {
                             root,
                             items: vec![TreeItem::new(&token.lexeme), term.tree],
@@ -89,7 +107,14 @@ impl Analyzer {
                 TokenType::Asterisk | TokenType::Slash => {
                     self.lexic.consume_token();
                     let factor = self.factor()?;
+                    let node_hash = self.graph.add(Node {
+                        op: token.token_type,
+                        left: analyzed.node_hash,
+                        right: factor.node_hash,
+                        is_leaf: false,
+                    });
                     let mut partial = Analyzed {
+                        node_hash,
                         postfix: format!(
                             "{} {} {}",
                             analyzed.postfix, factor.postfix, token.lexeme
@@ -134,9 +159,17 @@ impl Analyzer {
                 }
                 TokenType::Number | TokenType::Id => {
                     self.lexic.consume_token();
+                    let symbol_hash = self.symbols_table.add(&token);
+                    let node_hash = self.graph.add(Node {
+                        op: token.token_type.clone(),
+                        left: symbol_hash,
+                        right: 0,
+                        is_leaf: true,
+                    });
                     Ok(Analyzed {
                         prefix: token.lexeme.clone(),
                         postfix: token.lexeme.clone(),
+                        node_hash,
                         tree: TreeItem {
                             root,
                             items: vec![TreeItem {

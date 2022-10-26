@@ -37,6 +37,7 @@ impl LexicAnalyzer {
             self.consume_token();
             return Ok(token.clone());
         }
+        self.next_char();
         Err(AnalyzerError::new(
             &String::from(self.current),
             self.pos,
@@ -62,17 +63,22 @@ impl LexicAnalyzer {
                 token.token_type = TokenType::Number;
                 if let Some(num) = self.number() {
                     token.lexeme = num;
+                } else {
+                    return None;
                 }
             }
             'a'..='z' | 'A'..='Z' | '_' => {
                 token.token_type = TokenType::Id;
                 if let Some(id) = self.id() {
                     token.lexeme = id;
+                } else {
+                    return None;
                 }
             }
             '\0' => (),
             _ => {
-                return None;
+                token.token_type = TokenType::Unknown;
+                token.lexeme = self.current.to_string();
             }
         };
         self.token = Some(token.clone());
