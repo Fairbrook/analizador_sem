@@ -37,7 +37,6 @@ impl LexicAnalyzer {
             self.consume_token();
             return Ok(token.clone());
         }
-        self.next_char();
         Err(AnalyzerError::new(
             &String::from(self.current),
             self.pos,
