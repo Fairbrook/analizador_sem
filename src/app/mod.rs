@@ -2,6 +2,7 @@ use self::{
     analyzer::{error::AnalyzerError, graph::Graph, sintactic::Analyzer, symbols::SymbolsTable},
     tree::TreeItem,
 };
+use self::analyzer::sintactic::{Analyzed, Analyzer, AnalyzerResult};
 
 pub mod analyzer;
 pub mod tree;

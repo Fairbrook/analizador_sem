@@ -13,6 +13,7 @@ pub struct Analyzed {
     pub prefix: String,
     pub node_hash: u64,
     pub tree: TreeItem,
+    pub result: Option<f32>,
 }
 
 pub type AnalyzerResult = Result<Analyzed, AnalyzerError>;
@@ -63,7 +64,19 @@ impl Analyzer {
                         right: term.node_hash,
                         is_leaf: false,
                     });
+                    let num = if let (Some(operand_a), Some(operand_b)) =
+                        (analyzed.result, term.result)
+                    {
+                        match token.token_type {
+                            TokenType::Plus => Some(operand_a + operand_b),
+                            TokenType::Minus => Some(operand_a - operand_b),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    };
                     let mut partial = Analyzed {
+                        result: num,
                         postfix: format!("{} {} {}", analyzed.postfix, term.postfix, token.lexeme),
                         prefix: format!("{} {} {}", token.lexeme, analyzed.prefix, term.prefix),
                         node_hash,
@@ -115,6 +128,19 @@ impl Analyzer {
                     });
                     let mut partial = Analyzed {
                         node_hash,
+                    let num = if let (Some(operand_a), Some(operand_b)) =
+                        (analyzed.result, factor.result)
+                    {
+                        match token.token_type {
+                            TokenType::Asterisk => Some(operand_a * operand_b),
+                            TokenType::Slash => Some(operand_a / operand_b),
+                            _ => None,
+                        }
+                    } else {
+                        None
+                    };
+                    let mut partial = Analyzed {
+                        result: num,
                         postfix: format!(
                             "{} {} {}",
                             analyzed.postfix, factor.postfix, token.lexeme
@@ -170,6 +196,19 @@ impl Analyzer {
                         prefix: token.lexeme.clone(),
                         postfix: token.lexeme.clone(),
                         node_hash,
+                    let num = if let TokenType::Number = token.token_type {
+                        if let Ok(res) = token.lexeme.parse::<f32>() {
+                            Some(res)
+                        } else {
+                            None
+                        }
+                    } else {
+                        None
+                    };
+                    Ok(Analyzed {
+                        prefix: token.lexeme.clone(),
+                        postfix: token.lexeme.clone(),
+                        result: num,
                         tree: TreeItem {
                             root,
                             items: vec![TreeItem {
