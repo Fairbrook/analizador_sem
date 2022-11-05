@@ -49,8 +49,9 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                     .margin(1)
                     .constraints(
                         [
-                            Constraint::Percentage(50),
-                            Constraint::Percentage(50),
+                            Constraint::Percentage(33),
+                            Constraint::Percentage(33),
+                            Constraint::Percentage(33),
                         ]
                         .as_ref(),
                     )
@@ -64,6 +65,10 @@ pub fn draw_frame<B: Backend>(f: &mut Frame<B>, app: &mut App) {
                 f.render_widget(posfix_result, result_layout[0]);
                 f.render_widget(prefix_result, result_layout[1]);
                 f.render_widget(tree_paragraph, main_layout[2]);
+                if let Some(num) = res.result {
+                    let numeric_result = Paragraph::new(format!("Resultado: {}", num));
+                    f.render_widget(numeric_result, result_layout[2]);
+                }
             }
             Err(err) => {
                 err_str = format!("{}", err);

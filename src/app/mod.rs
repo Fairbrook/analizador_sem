@@ -1,7 +1,4 @@
-use self::{
-    analyzer::sintactic::{Analyzed, Analyzer, AnalyzerResult},
-    tree::TreeItem,
-};
+use self::analyzer::sintactic::{Analyzed, Analyzer, AnalyzerResult};
 
 pub mod analyzer;
 pub mod tree;
@@ -28,11 +25,7 @@ impl Default for App {
         App {
             input: String::from(""),
             last_input: String::from(""),
-            last_result: Ok(Analyzed {
-                postfix: String::from(""),
-                prefix: String::from(""),
-                tree: TreeItem::new(""),
-            }),
+            last_result: Ok(Analyzed::default()),
         }
     }
 }
