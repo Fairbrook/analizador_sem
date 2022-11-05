@@ -1,8 +1,8 @@
+use self::analyzer::sintactic::Analyzer;
 use self::{
-    analyzer::{error::AnalyzerError, graph::Graph, sintactic::Analyzer, symbols::SymbolsTable},
+    analyzer::{error::AnalyzerError, graph::Graph, symbols::SymbolsTable},
     tree::TreeItem,
 };
-use self::analyzer::sintactic::{Analyzed, Analyzer, AnalyzerResult};
 
 pub mod analyzer;
 pub mod tree;
@@ -19,6 +19,7 @@ pub struct State {
     pub postfix: String,
     pub prefix: String,
     pub tree: TreeItem,
+    pub result: Option<f32>,
     pub symbols_table: SymbolsTable,
     pub graph: Graph,
 }
@@ -40,6 +41,7 @@ impl App {
             prefix: res.prefix,
             postfix: res.postfix,
             tree: res.tree,
+            result: res.result,
             symbols_table: analyzer.symbols_table,
             graph: analyzer.graph,
         });

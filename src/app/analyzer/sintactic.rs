@@ -58,12 +58,6 @@ impl Analyzer {
                 TokenType::Plus | TokenType::Minus => {
                     self.lexic.consume_token();
                     let term = self.term()?;
-                    let node_hash = self.graph.add(Node {
-                        op: token.token_type.clone(),
-                        left: analyzed.node_hash,
-                        right: term.node_hash,
-                        is_leaf: false,
-                    });
                     let num = if let (Some(operand_a), Some(operand_b)) =
                         (analyzed.result, term.result)
                     {
@@ -75,6 +69,12 @@ impl Analyzer {
                     } else {
                         None
                     };
+                    let node_hash = self.graph.add(Node {
+                        op: token.token_type,
+                        left: analyzed.node_hash,
+                        right: term.node_hash,
+                        is_leaf: false,
+                    });
                     let mut partial = Analyzed {
                         result: num,
                         postfix: format!("{} {} {}", analyzed.postfix, term.postfix, token.lexeme),
@@ -120,14 +120,6 @@ impl Analyzer {
                 TokenType::Asterisk | TokenType::Slash => {
                     self.lexic.consume_token();
                     let factor = self.factor()?;
-                    let node_hash = self.graph.add(Node {
-                        op: token.token_type,
-                        left: analyzed.node_hash,
-                        right: factor.node_hash,
-                        is_leaf: false,
-                    });
-                    let mut partial = Analyzed {
-                        node_hash,
                     let num = if let (Some(operand_a), Some(operand_b)) =
                         (analyzed.result, factor.result)
                     {
@@ -139,7 +131,14 @@ impl Analyzer {
                     } else {
                         None
                     };
+                    let node_hash = self.graph.add(Node {
+                        op: token.token_type,
+                        left: analyzed.node_hash,
+                        right: factor.node_hash,
+                        is_leaf: false,
+                    });
                     let mut partial = Analyzed {
+                        node_hash,
                         result: num,
                         postfix: format!(
                             "{} {} {}",
@@ -192,10 +191,6 @@ impl Analyzer {
                         right: 0,
                         is_leaf: true,
                     });
-                    Ok(Analyzed {
-                        prefix: token.lexeme.clone(),
-                        postfix: token.lexeme.clone(),
-                        node_hash,
                     let num = if let TokenType::Number = token.token_type {
                         if let Ok(res) = token.lexeme.parse::<f32>() {
                             Some(res)
@@ -208,6 +203,7 @@ impl Analyzer {
                     Ok(Analyzed {
                         prefix: token.lexeme.clone(),
                         postfix: token.lexeme.clone(),
+                        node_hash,
                         result: num,
                         tree: TreeItem {
                             root,
